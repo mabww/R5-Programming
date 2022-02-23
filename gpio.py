@@ -1,44 +1,87 @@
-import RPi.GPIO as GPIO
-import time
+# Python Script
+# https://www.electronicshub.org/raspberry-pi-l298n-interface-tutorial-control-dc-motor-l298n-raspberry-pi/
 
-in1 = 16
-in2 = 18
+import RPi.GPIO as GPIO          
+from time import sleep
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(in1, GPIO.OUT)
-GPIO.setup(in2, GPIO.OUT)
+in1 = 24
+in2 = 23
+en = 25
+temp1=1
 
-GPIO.output(in1, False)
-GPIO.output(in2, False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(in1,GPIO.OUT)
+GPIO.setup(in2,GPIO.OUT)
+GPIO.setup(en,GPIO.OUT)
+GPIO.output(in1,GPIO.LOW)
+GPIO.output(in2,GPIO.LOW)
+p=GPIO.PWM(en,1000)
 
-try:
-    while True:
-      for x in range(5):
-            GPIO.output(in1, True)
-            time.sleep(0.1)
-            GPIO.output(in1, False)
-            GPIO.output(in2, True)
-            time.sleep(0.1)
-            GPIO.output(in2, False)
-      
-      GPIO.output(in1,True)
-      GPIO.output(in2,True)
+p.start(25)
+print("\n")
+print("The default speed & direction of motor is LOW & Forward.....")
+print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
+print("\n")    
 
-      for x in range(4):
-            GPIO.output(in1, True)
-            time.sleep(0.05)
-            GPIO.output(in1, False)
-            time.sleep(0.05)
-      GPIO.output(in1,True)
+while(1):
 
-      for x in range(4):
-            GPIO.output(in2, True)
-            time.sleep(0.05)
-            GPIO.output(in2, False)
-            time.sleep(0.05)
-      GPIO.output(in2,True)
+    x=raw_input()
+    
+    if x=='r':
+        print("run")
+        if(temp1==1):
+         GPIO.output(in1,GPIO.HIGH)
+         GPIO.output(in2,GPIO.LOW)
+         print("forward")
+         x='z'
+        else:
+         GPIO.output(in1,GPIO.LOW)
+         GPIO.output(in2,GPIO.HIGH)
+         print("backward")
+         x='z'
 
 
+    elif x=='s':
+        print("stop")
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.LOW)
+        x='z'
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
+    elif x=='f':
+        print("forward")
+        GPIO.output(in1,GPIO.HIGH)
+        GPIO.output(in2,GPIO.LOW)
+        temp1=1
+        x='z'
+
+    elif x=='b':
+        print("backward")
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.HIGH)
+        temp1=0
+        x='z'
+
+    elif x=='l':
+        print("low")
+        p.ChangeDutyCycle(25)
+        x='z'
+
+    elif x=='m':
+        print("medium")
+        p.ChangeDutyCycle(50)
+        x='z'
+
+    elif x=='h':
+        print("high")
+        p.ChangeDutyCycle(75)
+        x='z'
+     
+    
+    elif x=='e':
+        GPIO.cleanup()
+        print("GPIO Clean up")
+        break
+    
+    else:
+        print("<<<  wrong data  >>>")
+        print("please enter the defined data to continue.....")
